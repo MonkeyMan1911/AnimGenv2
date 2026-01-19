@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Play, Pause, RotateCcw, Plus, Trash2, GripVertical, Download, Upload } from "lucide-react";
+import { Play, Pause, RotateCcw, Plus, Trash2, GripVertical, Download, Upload, Copy } from "lucide-react";
 
 // Type definitions
 type ParseMode = "grid" | "sourceview";
@@ -68,6 +68,7 @@ const App = () => {
   const [imagePath, setImagePath] = useState("path/to/spritesheet.png");
   // New state for default duration
   const [defaultDuration, setDefaultDuration] = useState(150);
+  const [copySuccess, setCopySuccess] = useState(false);
 
   // Irregular mode state
   // const [isDrawing, setIsDrawing] = useState(false);
@@ -92,6 +93,12 @@ const App = () => {
     };
     setSourceViews([...sourceViews, newView]);
     setSelectedSourceView(sourceViews.length);
+  };
+
+  const handleCopyCode = () => {
+    navigator.clipboard.writeText(generateCode());
+    setCopySuccess(true);
+    setTimeout(() => setCopySuccess(false), 2000); // hide after 2 seconds
   };
 
   const updateFrame = (animIndex: number, frameIndex: number, patch: Partial<AnimationFrame>) => {
@@ -378,15 +385,29 @@ const App = () => {
       setCurrentFrameIdx(0);
       return;
     }
+
     const frame = frames[animFrame.frameIndex];
     if (!frame) return;
 
-    canvas.width = frame.width * 4;
-    canvas.height = frame.height * 4;
+    // Apply zoom or fixed scale for preview
+    const scale = 4;
+    canvas.width = frame.width * scale;
+    canvas.height = frame.height * scale;
 
     ctx.imageSmoothingEnabled = false;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Determine flipping
+    const flipH = animFrame.flipH || anim.flipH;
+    const flipV = animFrame.flipV || anim.flipV;
+
+    ctx.save();
+    ctx.translate(flipH ? canvas.width : 0, flipV ? canvas.height : 0);
+    ctx.scale(flipH ? -1 : 1, flipV ? -1 : 1);
+
     ctx.drawImage(image, frame.x, frame.y, frame.width, frame.height, 0, 0, canvas.width, canvas.height);
+
+    ctx.restore();
   }, [image, selectedAnimation, currentFrameIdx, animations, frames]);
 
   // Generate TypeScript code
@@ -559,7 +580,7 @@ const App = () => {
     <div className="min-h-screen bg-gray-900 text-gray-100 p-20">
       <div className="max-w-7xl mx-auto">
         <header className="mb-6">
-          <h1 className="text-3xl font-bold text-blue-400">Excalibur Animation Builder (v2)</h1>
+          <h1 className="text-3xl font-bold text-blue-400">Excalibur Animation Builder (v2.1)</h1>
           <p className="text-gray-400 mt-1">Parse spritesheets and generate animation code</p>
         </header>
 
@@ -1081,8 +1102,25 @@ const App = () => {
 
         {/* Code Preview */}
         {animations.length > 0 && (
-          <div className="mt-6 bg-gray-800 rounded-lg p-4">
+          <div className="mt-6 bg-gray-800 rounded-lg p-4 relative">
             <h2 className="text-lg font-semibold mb-3">Generated Code Preview</h2>
+
+            {/* Copy button */}
+            <button
+              onClick={handleCopyCode}
+              className="absolute top-4 right-4 bg-gray-700 hover:bg-gray-600 p-2 rounded"
+              title="Copy to clipboard"
+            >
+              <Copy size={16} />
+            </button>
+
+            {/* Toast message */}
+            {copySuccess && (
+              <div className="absolute top-2 right-16 bg-green-600 text-white px-3 py-1 rounded shadow-lg transition-opacity duration-300">
+                Copied!
+              </div>
+            )}
+
             <pre className="bg-gray-900 p-4 rounded overflow-x-auto text-sm">
               <code className="text-green-400">{generateCode()}</code>
             </pre>
