@@ -78,6 +78,9 @@ const App = () => {
   const [zoom, setZoom] = useState(1); // 1 = 100%
   const MIN_ZOOM = 0.25;
   const MAX_ZOOM = 8;
+  const [previewZoom, setPreviewZoom] = useState(4); // default 4x
+  const MIN_PREVIEW_ZOOM = 1;
+  const MAX_PREVIEW_ZOOM = 16;
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -390,7 +393,7 @@ const App = () => {
     if (!frame) return;
 
     // Apply zoom or fixed scale for preview
-    const scale = 4;
+    const scale = previewZoom;
     canvas.width = frame.width * scale;
     canvas.height = frame.height * scale;
 
@@ -408,7 +411,7 @@ const App = () => {
     ctx.drawImage(image, frame.x, frame.y, frame.width, frame.height, 0, 0, canvas.width, canvas.height);
 
     ctx.restore();
-  }, [image, selectedAnimation, currentFrameIdx, animations, frames]);
+  }, [image, selectedAnimation, currentFrameIdx, animations, frames, previewZoom]);
 
   // Generate TypeScript code
   const generateCode = () => {
@@ -580,7 +583,7 @@ const App = () => {
     <div className="min-h-screen bg-gray-900 text-gray-100 p-20">
       <div className="max-w-7xl mx-auto">
         <header className="mb-6">
-          <h1 className="text-3xl font-bold text-blue-400">Excalibur Animation Builder (v2.1)</h1>
+          <h1 className="text-3xl font-bold text-blue-400">Excalibur Animation Builder (v2.2)</h1>
           <p className="text-gray-400 mt-1">Parse spritesheets and generate animation code</p>
         </header>
 
@@ -840,6 +843,30 @@ const App = () => {
             {selectedAnimation !== null && (
               <div className="bg-gray-800 rounded-lg p-4 mt-4">
                 <h2 className="text-lg font-semibold mb-3">Animation Preview</h2>
+                <div className="flex items-center gap-2 mb-2 text-sm">
+                  <span className="text-gray-400">Preview Zoom</span>
+
+                  <button
+                    onClick={() => setPreviewZoom(z => Math.max(MIN_PREVIEW_ZOOM, z / 1.25))}
+                    className="bg-gray-700 hover:bg-gray-600 px-2 py-1 rounded"
+                  >
+                    −
+                  </button>
+
+                  <span className="w-12 text-center">{Math.round(previewZoom * 100)}%</span>
+
+                  <button
+                    onClick={() => setPreviewZoom(z => Math.min(MAX_PREVIEW_ZOOM, z * 1.25))}
+                    className="bg-gray-700 hover:bg-gray-600 px-2 py-1 rounded"
+                  >
+                    +
+                  </button>
+
+                  <button onClick={() => setPreviewZoom(4)} className="bg-gray-700 hover:bg-gray-600 px-2 py-1 rounded ml-2">
+                    Reset
+                  </button>
+                </div>
+
                 <div className="bg-gray-900 rounded p-4 flex items-center justify-center" style={{ minHeight: "200px" }}>
                   <canvas ref={previewCanvasRef} className="pixelated" />
                 </div>
