@@ -581,9 +581,9 @@ const App = () => {
 
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100 p-20">
-      <div className="max-w-7xl mx-auto">
+      <div className="">
         <header className="mb-6">
-          <h1 className="text-3xl font-bold text-blue-400">Excalibur Animation Builder (v2.3)</h1>
+          <h1 className="text-3xl font-bold text-blue-400">Excalibur Animation Builder (v2.4)</h1>
           <p className="text-gray-400 mt-1">Parse spritesheets and generate animation code</p>
         </header>
 
@@ -700,7 +700,7 @@ const App = () => {
                   </div>
                 </div>
                 <div>
-                  <label className="text-sm text-gray-400">Margin</label>
+                  <label className="text-sm text-gray-400">Margin/Gutter</label>
                   <div className="grid grid-cols-2 gap-2 mt-1">
                     <input
                       type="number"
@@ -803,7 +803,7 @@ const App = () => {
           </div>
 
           {/* Center Panel - Canvas */}
-          <div className="col-span-5">
+          <div className="col-span-6">
             <div className="bg-gray-800 rounded-lg p-4">
               <h2 className="text-lg font-semibold mb-1">Spritesheet</h2>
               <p className="text-xs text-gray-400 mb-3">
@@ -896,7 +896,7 @@ const App = () => {
           </div>
 
           {/* Right Panel - Animations */}
-          <div className="col-span-4 space-y-4">
+          <div className="col-span-3 space-y-4">
             <div className="bg-gray-800 rounded-lg p-3">
               <h2 className="text-lg font-semibold mb-3">3. Animations</h2>
               <div>
